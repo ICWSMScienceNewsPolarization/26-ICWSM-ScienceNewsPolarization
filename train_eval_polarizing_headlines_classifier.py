@@ -215,7 +215,7 @@ tokenizer = AutoTokenizer.from_pretrained(**tokenizer_config)
 
 lowercase = False
 
-# %% check results on test set by Lyu et al. (file from Lyu et al. https://github.com/VIStA-H/Hyperpartisan-News-Titles)
+# %% evaluate on test set by Lyu et al. (file from Lyu et al. https://github.com/VIStA-H/Hyperpartisan-News-Titles)
 print(f'load data')
 dl = HyperpartisanNewsTitlesDataLoader(tokenizer, lowercase)
 test_ds, test_df = dl.test_dataset, dl.test_data
@@ -245,7 +245,7 @@ print(output)
 
 # %% predict science news article headlines
 def predict_science_news_article_titles():
-    news = pd.Dataframe() # ... provide file with text column and newsid (ID) column
+    #news = pd.read # ... provide file with text column and newsid (ID) column
 
     ds = Dataset.from_pandas(news[['text', "newsid"]], preserve_index=False).with_format("torch")
 
@@ -278,3 +278,38 @@ def predict_science_news_article_titles():
     return news
 
 news_with_scores = predict_science_news_article_titles()
+
+
+# %% evaluate on science news test set (annotated by first author)
+annotations = pd.read_json("science_news_headlines_annotations.json", orient="records")
+annotations["text"] = annotations["news_title"]
+annotations["labels"] = annotations["label"].astype(int)
+
+ds = Dataset.from_pandas(annotations[['text', "labels", "newsid"]], preserve_index=False).with_format("torch")
+
+def tokenize_with_padding(examples):
+    return tokenizer(examples["text"], max_length=128, truncation=True, padding="max_length", return_tensors="pt")
+
+per_device_eval_batch_size = 128
+
+ds = ds.map(tokenize_with_padding, batched=True, batch_size=per_device_eval_batch_size, remove_columns=['text'])
+
+training_args = TrainingArguments(
+    output_dir=f"results",
+    per_device_eval_batch_size=per_device_eval_batch_size,
+    no_cuda=False,
+    dataloader_pin_memory=True,
+    dataloader_num_workers=10,
+    dataloader_prefetch_factor=2,
+    report_to='none'
+)
+
+trainer = Trainer(
+    model=best_model,
+    args=training_args,
+    eval_dataset=ds,
+    compute_metrics=compute_metrics
+)
+
+output = trainer.evaluate()
+print(output)
