@@ -6,6 +6,6 @@ This is the anonymous repository for ICWSM 26 January submission 1694
 - llm_polarizing_headlines_inference.py contains the code to evaluate different LLMs for the identification of polarizing headlines
 - train_eval_polarizing_headlines_classifier.py contains the code to training, evaluation and inference of Transformer-based models for the identification of polarizing headlines
 - science_news_headlines_annotations.json contains annotations on 300 science news headlines from the dataset used in this study
-- 
+  
 ## Polarizing Headlines Classifier
 The model used to identify polarizing headlines can be found here: https://huggingface.co/ICWSM/polarizing_headline_classifier
