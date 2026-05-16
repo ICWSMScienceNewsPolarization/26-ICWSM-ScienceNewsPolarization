@@ -1,5 +1,5 @@
 # Repo for ICWSM 26 submission "Polarizing Science News: How News Outlets and Social Media Shape Public Exposure"
-This is the anonymous repository for ICWSM 26 January submission 1694
+This is the anonymous repository for ICWSM 26 January submission 1694 and May 26 revision.
 
 ## Files
 - Analysis_and_Plots_in_R.ipynb contains the code for the analysis and to create the plots and tables. 
